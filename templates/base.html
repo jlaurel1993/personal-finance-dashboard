@@ -1,16 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="notranslate" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
     <title>Personal Finance Dashboard</title>
-    
-    <!-- Script to forcefully kill any leftover Google Translate cookies -->
-    <script>
-        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" + location.hostname + "; path=/;";
-    </script>
-
     <style>
         :root {
             --bg-color: #0f172a;
@@ -26,10 +20,11 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-color) !important;
+            color: var(--text-color) !important;
             margin: 0;
             padding: 0;
+            top: 0 !important;
         }
 
         nav {
