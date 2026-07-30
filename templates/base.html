@@ -15,7 +15,6 @@
         .user-bar { position: absolute; top: 15px; right: 20px; color: white; font-size: 0.9rem; font-weight: bold; }
         .user-bar a { color: #fca5a5; margin-left: 10px; text-decoration: none; }
 
-        /* Translation Toggle Button at Top-Left */
         .lang-bar { position: absolute; top: 15px; left: 20px; }
         .lang-btn {
             background-color: #1e40af;
@@ -99,9 +98,70 @@
     </div>
 
     <script>
+        // Full Page Dictionary Mapping
+        const pageTranslations = {
+            // Goals Tab
+            "Track Progress on Your Biggest Goals": "Sigue el Progreso de tus Mayores Metas",
+            "🎯 Create a New Savings Goal": "🎯 Crear una Nueva Meta de Ahorro",
+            "Goal Name": "Nombre de la Meta",
+            "Target Amount ($)": "Monto Objetivo ($)",
+            "Target Completion Date": "Fecha Límite Objetivo",
+            "Create Goal": "Crear Meta",
+            "Target Date": "Fecha Límite",
+            "Total Saved": "Total Ahorrado",
+            "Left to Save": "Falta por Ahorrar",
+            "Available to Spend": "Disponible para Gastar",
+            "Add Funds / Log Expense": "Agregar Fondos / Registrar Gasto",
+            "Log Contribution": "Registrar Contribución",
+            "Log Expense": "Registrar Gasto",
+            
+            // Enter Expenses & Forms
+            "Enter New Expense": "Ingresar Nuevo Gasto",
+            "Category": "Categoría",
+            "Amount": "Monto",
+            "Description": "Descripción",
+            "Submit Expense": "Registrar Gasto",
+            "Add Subscription": "Agregar Suscripción",
+            "Bill/Service Name": "Nombre de Factura/Servicio",
+            "Due Date": "Fecha de Vencimiento",
+            "Frequency": "Frecuencia",
+            
+            // General Actions & Headings
+            "Welcome to Your Dashboard": "Bienvenido a tu Panel",
+            "Total Expenses Logged": "Gastos Totales Registrados",
+            "Upcoming Recurring Total": "Total Recurrente Próximo",
+            "Recent Transactions": "Transacciones Recientes",
+            "Upcoming Bills Preview": "Vista Previa de Facturas",
+            "No upcoming bills.": "No hay facturas próximas.",
+            "Monthly Limit": "Límite Mensual",
+            "Spent": "Gastado",
+            "Remaining": "Restante",
+            "Set Budget": "Establecer Presupuesto"
+        };
+
+        function translateBody(lang) {
+            const elements = document.querySelectorAll('.container h1, .container h2, .container h3, .container h4, .container label, .container button, .container p, .container th');
+            
+            elements.forEach(el => {
+                const text = el.innerText.trim();
+                
+                if (lang === 'es') {
+                    // Save original english text in dataset
+                    if (!el.dataset.origText) el.dataset.origText = text;
+                    
+                    if (pageTranslations[text]) {
+                        el.innerText = pageTranslations[text];
+                    }
+                } else if (lang === 'en' && el.dataset.origText) {
+                    el.innerText = el.dataset.origText;
+                }
+            });
+        }
+
         function setLanguage(lang) {
             const btn = document.getElementById('lang-toggle');
             
+            // 1. Translate nav & header elements
             document.querySelectorAll('[data-en]').forEach(el => {
                 if (lang === 'es') {
                     el.innerText = el.getAttribute('data-es');
@@ -110,6 +170,10 @@
                 }
             });
 
+            // 2. Translate body content elements
+            translateBody(lang);
+
+            // 3. Update Button Label
             if (lang === 'es') {
                 btn.innerText = "🇺🇸 English";
                 localStorage.setItem('preferred_language', 'es');
