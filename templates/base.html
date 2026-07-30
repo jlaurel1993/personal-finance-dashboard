@@ -3,82 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Personal Finance Dashboard{% endblock %}</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Personal Finance Dashboard</title>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; color: #1e293b; background-color: #f0f6ff; }
-        
-        .header-banner { background-color: #1e3a8a; color: white; text-align: center; padding: 25px 20px 15px 20px; position: relative; }
-        .header-banner h1 { margin: 0 0 5px 0; font-size: 2.2rem; }
-        .header-banner p { margin: 0; font-size: 1rem; color: #bfdbfe; }
-        
-        .user-bar { position: absolute; top: 15px; right: 20px; color: white; font-size: 0.9rem; font-weight: bold; }
-        .user-bar a { color: #fca5a5; margin-left: 10px; text-decoration: none; }
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
 
-        nav { background-color: #1e40af; display: flex; justify-content: center; flex-wrap: wrap; padding: 10px 0; border-bottom: 3px solid #3b82f6; }
-        nav a { color: #ffffff; text-decoration: none; padding: 8px 18px; font-weight: bold; font-size: 0.95rem; border-radius: 4px; transition: background 0.2s; }
-        nav a:hover { background-color: #2563eb; color: #ffffff; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            top: 0 !important; /* Prevents Google Translate top bar shift */
+        }
 
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-        
-        form, .card { background: #ffffff; padding: 25px; border-radius: 10px; border: 1px solid #bfdbfe; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08); margin-bottom: 25px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #1e3a8a; }
-        input, select, button { width: 100%; padding: 10px; font-size: 0.95rem; border: 1px solid #93c5fd; border-radius: 6px; box-sizing: border-box; }
-        button { background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #1d4ed8; }
+        nav {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        th { background: #dbeafe; color: #1e3a8a; font-weight: bold; }
-        
-        .badge { background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        .alert-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; display: inline-block; }
-        .alert-danger { background-color: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
-        .alert-warning { background-color: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
-        .alert-info { background-color: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-        .delete-btn { color: #dc2626; text-decoration: none; font-weight: bold; margin-left: 8px; }
-        .edit-btn { color: #2563eb; text-decoration: none; font-weight: bold; }
+        /* Styling Google Translate widget to look sleek */
+        #google_translate_element select {
+            background-color: #334155;
+            color: #f8fafc;
+            border: 1px solid var(--accent-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .chart-container { width: 340px; margin: 20px auto 30px auto; }
-        .progress-bg { background: #e2e8f0; border-radius: 10px; height: 16px; width: 100%; overflow: hidden; margin-top: 8px; }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.3s; }
+        .goog-te-banner-frame {
+            display: none !important;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--border-color);
+            color: var(--accent-color);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .flash-messages {
+            margin-bottom: 1rem;
+        }
+
+        .flash-error {
+            background-color: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <div class="header-banner">
-        {% if current_user.is_authenticated %}
-        <div class="user-bar">
-            👤 {{ current_user.username }} | <a href="/logout">Logout</a>
-        </div>
-        {% endif %}
-        <h1>Personal Finance Dashboard</h1>
-        <p>Track expenses, plan upcoming bills, and analyze your monthly spending.</p>
-    </div>
-
     <nav>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
+        <div class="nav-left">
+            <!-- Automated Google Translator at top left -->
+            <div id="google_translate_element"></div>
+            <a href="/" style="text-decoration: none; color: white; font-weight: bold; font-size: 1.2rem;">📊 FinanceApp</a>
+        </div>
+        
         {% if current_user.is_authenticated %}
-        <a href="/enter_expenses">Enter Expenses</a>
-        <a href="/upcoming_bills">Upcoming Bills & Subscriptions</a>
-        <a href="/past_expenses">Past Expenses & Chart</a>
-        <a href="/budgets">Budgets</a>
-        <a href="/goals">Goals</a>
-        <a href="/monthly_totals">Monthly Totals Breakdown</a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/enter_expenses">Enter Expenses</a></li>
+            <li><a href="/upcoming_bills">Upcoming Bills</a></li>
+            <li><a href="/past_expenses">Past Expenses</a></li>
+            <li><a href="/budgets">Budgets</a></li>
+            <li><a href="/goals">Goals</a></li>
+            <li><a href="/monthly_totals">Monthly Totals</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/logout" style="color: var(--danger);">Logout</a></li>
+        </ul>
         {% else %}
-        <a href="/login">Login</a>
-        <a href="/signup">Sign Up</a>
+        <ul class="nav-links">
+            <li><a href="/login">Login</a></li>
+            <li><a href="/signup">Sign Up</a></li>
+        </ul>
         {% endif %}
     </nav>
 
     <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </div>
 
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,es',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 </body>
 </html>
-
