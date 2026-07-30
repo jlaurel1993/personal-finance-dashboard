@@ -20,7 +20,7 @@ from flask_login import (
     logout_user,
 )
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import extract, func
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -340,13 +340,14 @@ def budgets():
     ).first()
     limit = budget_record.monthly_limit if budget_record else 0.00
 
+    # Using extract() works natively across both PostgreSQL and SQLite
     spent = (
         db.session.query(func.sum(Transaction.amount))
         .filter(
             Transaction.user_id == current_user.id,
             Transaction.category == cat,
-            func.strftime('%m', Transaction.date) == f'{current_month:02d}',
-            func.strftime('%Y', Transaction.date) == str(current_year),
+            extract('month', Transaction.date) == current_month,
+            extract('year', Transaction.date) == current_year,
         )
         .scalar()
         or 0.00
