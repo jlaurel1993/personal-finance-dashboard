@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Upcoming Bills{% endblock %}
+{% block content %}
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Upcoming Bills & Subscriptions</h2>
+        <a href="/export/subscriptions" style="background-color: #059669; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 0.9rem;">📥 Download CSV</a>
+    </div>
+
+    {% if sub_chart_categories %}
+    <div class="chart-container">
+        <canvas id="subChart"></canvas>
+    </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Due Date</th>
+                <th>Alert Status</th>
+                <th>Service / Bill</th>
+                <th>Frequency</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in subscriptions %}
+            <tr>
+                <td><strong>{{ item.data.due_date }}</strong></td>
+                <td><span class="alert-badge alert-{{ item.status.class }}">{{ item.status.label }}</span></td>
+                <td>{{ item.data.name }}</td>
+                <td><span class="badge">{{ item.data.frequency }}</span></td>
+                <td>{{ item.data.category }}</td>
+                <td>${{ "%.2f"|format(item.data.amount) }}</td>
+                <td>
+                    <a href="/edit_sub/{{ item.data.id }}" class="edit-btn">Edit</a>
+                    <a href="/delete_sub/{{ item.data.id }}" class="delete-btn">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7">No upcoming subscriptions recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        const subChartCategories = {{ sub_chart_categories | tojson }};
+        const subChartAmounts = {{ sub_chart_amounts | tojson }};
+
+        if (subChartCategories.length > 0) {
+            const ctx = document.getElementById('subChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: subChartCategories,
+                    datasets: [{
+                        data: subChartAmounts,
+                        backgroundColor: ['#059669', '#2563eb', '#7c3aed', '#d97706', '#dc2626', '#db2777']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+    </script>
+{% endblock %}

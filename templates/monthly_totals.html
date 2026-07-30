@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Monthly Totals{% endblock %}
+{% block content %}
+    <h2>Monthly Totals Breakdown</h2>
+
+    <form action="/add_monthly_summary" method="POST">
+        <h3>Add Monthly Record</h3>
+        <div class="grid">
+            <div><label>Month</label><input type="text" name="month" placeholder="e.g. July 2026" required></div>
+            <div><label>Past Expenses ($)</label><input type="number" step="0.01" name="past_expenses" placeholder="0.00" required></div>
+            <div><label>Recurring Bills ($)</label><input type="number" step="0.01" name="recurring_bills" placeholder="0.00" required></div>
+            <div><label>Total Spent ($)</label><input type="number" step="0.01" name="total_spent" placeholder="0.00" required></div>
+        </div>
+        <button type="submit" style="background-color: #4f46e5;">Save Monthly Record</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Monthly Past Expenses</th>
+                <th>Monthly Recurring Bills</th>
+                <th>Total Spent This Month</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in monthly_summaries %}
+            <tr>
+                <td><strong>{{ m.month }}</strong></td>
+                <td>${{ "%.2f"|format(m.past_expenses) }}</td>
+                <td>${{ "%.2f"|format(m.recurring_bills) }}</td>
+                <td><strong>${{ "%.2f"|format(m.total_spent) }}</strong></td>
+                <td><a href="/delete_monthly/{{ m.id }}" class="delete-btn">Delete</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No monthly totals entered yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

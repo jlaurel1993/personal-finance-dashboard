@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance & Subscription Dashboard</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 30px auto; padding: 0 20px; color: #333; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        form { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
+        input, select, button { width: 100%; padding: 8px; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        button:hover { background: #1d4ed8; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+        th { background: #f1f5f9; }
+        .badge { background: #e0e7ff; color: #3730a3; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .delete-btn { color: #dc2626; text-decoration: none; font-weight: bold; margin-left: 8px; }
+        .edit-btn { color: #2563eb; text-decoration: none; font-weight: bold; }
+        .summary-card { background: #eff6ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; font-weight: bold; }
+        .chart-container { width: 340px; margin: 20px auto 40px auto; }
+        .monthly-form { background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #cbd5e1; }
+        .monthly-form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Personal Finance Dashboard</h1>
+
+    <div class="summary-card">
+        <div>Total Expenses Logged: ${{ "%.2f"|format(total_spent) }}</div>
+        <div>Upcoming Recurring Total: ${{ "%.2f"|format(total_recurring) }}</div>
+    </div>
+
+    <!-- Forms Section -->
+    <div class="grid">
+        <!-- Log Expense Form -->
+        <form action="/add_transaction" method="POST">
+            <h3>Log Expense</h3>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category" required>
+                    <option value="Food & Dining">Food & Dining</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" step="0.01" name="amount" placeholder="45.50" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="description" placeholder="Groceries" required>
+            </div>
+            <button type="submit">Add Expense</button>
+        </form>
+
+        <!-- Add Subscription Form -->
+        <form action="/add_subscription" method="POST">
+            <h3>Add Subscription / Bill</h3>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" placeholder="Netflix, Gym, Rent" required>
+            </div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" step="0.01" name="amount" placeholder="15.99" required>
+            </div>
+            <div class="form-group">
+                <label>Next Due Date</label>
+                <input type="date" name="due_date" required>
+            </div>
+            <div class="form-group">
+                <label>Frequency</label>
+                <select name="frequency">
+                    <option value="Monthly">Monthly</option>
+                    <option value="Yearly">Yearly</option>
+                    <option value="Weekly">Weekly</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category">
+                    <option value="Subscriptions">Subscriptions</option>
+                    <option value="Bills & Housing">Bills & Housing</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <button type="submit" style="background-color: #059669;">Add Upcoming Bill</button>
+        </form>
+    </div>
+
+    <hr style="margin: 30px 0;">
+
+    <!-- Upcoming Subscriptions Table -->
+    <h2>Upcoming Bills & Subscriptions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Due Date</th>
+                <th>Service / Bill</th>
+                <th>Frequency</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in subscriptions %}
+            <tr>
+                <td><strong>{{ s.due_date }}</strong></td>
+                <td>{{ s.name }}</td>
+                <td><span class="badge">{{ s.frequency }}</span></td>
+                <td>{{ s.category }}</td>
+                <td>${{ "%.2f"|format(s.amount) }}</td>
+                <td>
+                    <a href="/edit_sub/{{ s.id }}" class="edit-btn">Edit</a>
+                    <a href="/delete_sub/{{ s.id }}" class="delete-btn">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No upcoming subscriptions recorded.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr style="margin: 30px 0;">
+
+    <!-- Past Expenses Section with Pie Chart -->
+    <h2>Past Expenses Breakdown</h2>
+    
+    {% if chart_categories %}
+    <div class="chart-container">
+        <canvas id="expenseChart"></canvas>
+    </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ t.category }}</td>
+                <td>{{ t.description }}</td>
+                <td>${{ "%.2f"|format(t.amount) }}</td>
+                <td><a href="/delete_tx/{{ t.id }}" class="delete-btn">Delete</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No transactions logged yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr style="margin: 40px 0;">
+
+    <!-- SECTION AT THE VERY BOTTOM: Manual Monthly Breakdown -->
+    <h2>Monthly Totals Breakdown</h2>
+
+    <!-- Form to Manual Input Monthly Totals -->
+    <form action="/add_monthly_summary" method="POST" class="monthly-form">
+        <h3 style="margin-top: 0;">Add Monthly Record</h3>
+        <div class="monthly-form-grid">
+            <div>
+                <label>Month</label>
+                <input type="text" name="month" placeholder="e.g. July 2026" required>
+            </div>
+            <div>
+                <label>Past Expenses ($)</label>
+                <input type="number" step="0.01" name="past_expenses" placeholder="0.00" required>
+            </div>
+            <div>
+                <label>Recurring Bills ($)</label>
+                <input type="number" step="0.01" name="recurring_bills" placeholder="0.00" required>
+            </div>
+            <div>
+                <label>Total Spent ($)</label>
+                <input type="number" step="0.01" name="total_spent" placeholder="0.00" required>
+            </div>
+        </div>
+        <button type="submit" style="background-color: #4f46e5; margin-top: 15px;">Save Monthly Record</button>
+    </form>
+
+    <!-- Table of Saved Monthly Summaries -->
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Monthly Past Expenses</th>
+                <th>Monthly Recurring Bills</th>
+                <th>Total Spent This Month</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in monthly_summaries %}
+            <tr>
+                <td><strong>{{ m.month }}</strong></td>
+                <td>${{ "%.2f"|format(m.past_expenses) }}</td>
+                <td>${{ "%.2f"|format(m.recurring_bills) }}</td>
+                <td><strong>${{ "%.2f"|format(m.total_spent) }}</strong></td>
+                <td><a href="/delete_monthly/{{ m.id }}" class="delete-btn">Delete</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No monthly totals entered yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- JavaScript to Render Pie Chart -->
+    <script>
+        const chartCategories = {{ chart_categories | tojson }};
+        const chartAmounts = {{ chart_amounts | tojson }};
+
+        if (chartCategories.length > 0) {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartCategories,
+                    datasets: [{
+                        data: chartAmounts,
+                        backgroundColor: [
+                            '#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#db2777'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

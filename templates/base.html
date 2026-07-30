@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Personal Finance Dashboard{% endblock %}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; color: #1e293b; background-color: #f0f6ff; }
+        
+        .header-banner { background-color: #1e3a8a; color: white; text-align: center; padding: 25px 20px 15px 20px; position: relative; }
+        .header-banner h1 { margin: 0 0 5px 0; font-size: 2.2rem; }
+        .header-banner p { margin: 0; font-size: 1rem; color: #bfdbfe; }
+        
+        .user-bar { position: absolute; top: 15px; right: 20px; color: white; font-size: 0.9rem; font-weight: bold; }
+        .user-bar a { color: #fca5a5; margin-left: 10px; text-decoration: none; }
+
+        nav { background-color: #1e40af; display: flex; justify-content: center; flex-wrap: wrap; padding: 10px 0; border-bottom: 3px solid #3b82f6; }
+        nav a { color: #ffffff; text-decoration: none; padding: 8px 18px; font-weight: bold; font-size: 0.95rem; border-radius: 4px; transition: background 0.2s; }
+        nav a:hover { background-color: #2563eb; color: #ffffff; }
+
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        
+        form, .card { background: #ffffff; padding: 25px; border-radius: 10px; border: 1px solid #bfdbfe; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08); margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #1e3a8a; }
+        input, select, button { width: 100%; padding: 10px; font-size: 0.95rem; border: 1px solid #93c5fd; border-radius: 6px; box-sizing: border-box; }
+        button { background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #1d4ed8; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        th { background: #dbeafe; color: #1e3a8a; font-weight: bold; }
+        
+        .badge { background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .alert-badge { padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; display: inline-block; }
+        .alert-danger { background-color: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+        .alert-warning { background-color: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+        .alert-info { background-color: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+
+        .delete-btn { color: #dc2626; text-decoration: none; font-weight: bold; margin-left: 8px; }
+        .edit-btn { color: #2563eb; text-decoration: none; font-weight: bold; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-container { width: 340px; margin: 20px auto 30px auto; }
+        .progress-bg { background: #e2e8f0; border-radius: 10px; height: 16px; width: 100%; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div class="header-banner">
+        {% if current_user.is_authenticated %}
+        <div class="user-bar">
+            👤 {{ current_user.username }} | <a href="/logout">Logout</a>
+        </div>
+        {% endif %}
+        <h1>Personal Finance Dashboard</h1>
+        <p>Track expenses, plan upcoming bills, and analyze your monthly spending.</p>
+    </div>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        {% if current_user.is_authenticated %}
+        <a href="/enter_expenses">Enter Expenses</a>
+        <a href="/upcoming_bills">Upcoming Bills & Subscriptions</a>
+        <a href="/past_expenses">Past Expenses & Chart</a>
+        <a href="/budgets">Budgets</a>
+        <a href="/goals">Goals</a>
+        <a href="/monthly_totals">Monthly Totals Breakdown</a>
+        {% else %}
+        <a href="/login">Login</a>
+        <a href="/signup">Sign Up</a>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>
+

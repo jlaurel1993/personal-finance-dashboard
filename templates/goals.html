@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Savings Goals{% endblock %}
+{% block content %}
+
+    <h2>Track Progress on Your Biggest Goals</h2>
+
+    <!-- Prompt to Create a New Regular Goal -->
+    <form action="/add_goal" method="POST" style="margin-bottom: 35px; border-left: 5px solid #2563eb;">
+        <h3>🎯 Create a New Savings Goal</h3>
+        <div class="grid">
+            <div class="form-group">
+                <label>Goal Name</label>
+                <input type="text" name="title" placeholder="e.g. Emergency Fund, New Car, Laptop" required>
+            </div>
+            <div class="form-group">
+                <label>Target Amount ($)</label>
+                <input type="number" step="0.01" name="target_amount" placeholder="5000.00" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Target Completion Date</label>
+            <input type="date" name="target_date" required>
+        </div>
+        <button type="submit" style="background-color: #2563eb;">Create Goal</button>
+    </form>
+
+    <hr style="margin: 40px 0; border: none; border-top: 2px dashed #bfdbfe;">
+
+    <!-- Render All Active Goal Cards (Vacation Goal remains first) -->
+    {% for c in goal_cards %}
+    <div style="margin-bottom: 50px;">
+        <!-- Goal Progress Banner Header -->
+        <div class="card" style="background: {% if c.goal.is_vacation %}linear-gradient(135deg, #1e3a8a, #2563eb){% else %}linear-gradient(135deg, #0f766e, #059669){% endif %}; color: white; border: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; color: #ffffff;">{% if c.goal.is_vacation %}🏖️{% else %}🎯{% endif %} {{ c.goal.title }}</h2>
+                <div>
+                    <span style="background: rgba(255, 255, 255, 0.2); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
+                        Target: {{ c.goal.target_date }}
+                    </span>
+                    {% if not c.goal.is_vacation %}
+                        <a href="/delete_goal/{{ c.goal.id }}" style="color: #fca5a5; margin-left: 10px; font-weight: bold; text-decoration: none;">Delete Goal</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 1.1rem;">
+                <strong>${{ "%.2f"|format(c.total_saved) }}</strong> saved of <strong>${{ "%.2f"|format(c.goal.target_amount) }}</strong> goal
+            </div>
+
+            <div class="progress-bg" style="background: rgba(255,255,255,0.3); height: 18px;">
+                <div class="progress-fill" style="width: {{ c.progress_percent }}%; background-color: #10b981;"></div>
+            </div>
+            <div style="text-align: right; font-size: 0.85rem; margin-top: 5px; color: #bfdbfe;">
+                {{ "%.1f"|format(c.progress_percent) }}% Complete
+            </div>
+        </div>
+
+        <!-- 4 Stat Cards for this specific goal -->
+        <div class="grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px;">
+            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #059669; font-weight: bold;">+ Total Saved</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #059669; margin-top: 5px;">${{ "%.2f"|format(c.total_saved) }}</div>
+            </div>
+            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #64748b; font-weight: bold;">Left to Save</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #1e293b; margin-top: 5px;">${{ "%.2f"|format(c.left_to_save) }}</div>
+            </div>
+            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #dc2626; font-weight: bold;">Total Spent</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #dc2626; margin-top: 5px;">${{ "%.2f"|format(c.total_spent) }}</div>
+            </div>
+            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
+                <div style="font-size: 0.8rem; color: #2563eb; font-weight: bold;">Available to Spend</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #2563eb; margin-top: 5px;">${{ "%.2f"|format(c.available_to_spend) }}</div>
+            </div>
+        </div>
+
+        <!-- Forms for this Goal -->
+        <div class="grid">
+            <!-- Log Activity for this specific Goal -->
+            <form action="/add_goal_log/{{ c.goal.id }}" method="POST">
+                <h3>Log Activity for {{ c.goal.title }}</h3>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select name="log_type" required>
+                        <option value="contribution">💵 Add Savings Contribution</option>
+                        <option value="expense">💳 Goal Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" name="category" placeholder="e.g. Deposit, Purchase, Transfer" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount ($)</label>
+                    <input type="number" step="0.01" name="amount" placeholder="100.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" name="description" placeholder="Monthly contribution" required>
+                </div>
+                <button type="submit" style="background-color: #059669;">Save Activity</button>
+            </form>
+
+            <!-- Update Goal Details -->
+            <form action="/update_goal/{{ c.goal.id }}" method="POST">
+                <h3>Update Settings</h3>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" value="{{ c.goal.title }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Target Goal ($)</label>
+                    <input type="number" step="0.01" name="target_amount" value="{{ c.goal.target_amount }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Target Date</label>
+                    <input type="date" name="target_date" value="{{ c.goal.target_date }}" required>
+                </div>
+                <button type="submit">Update Goal Settings</button>
+            </form>
+        </div>
+
+        <!-- History Table for this specific Goal -->
+        <h3>History for {{ c.goal.title }}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in c.logs %}
+                <tr>
+                    <td>{{ item.date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if item.log_type == 'contribution' %}
+                            <span class="alert-badge alert-info">+ Savings</span>
+                        {% else %}
+                            <span class="alert-badge alert-danger">- Expense</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.category }}</td>
+                    <td>{{ item.description }}</td>
+                    <td><strong>${{ "%.2f"|format(item.amount) }}</strong></td>
+                    <td><a href="/delete_goal_log/{{ item.id }}" class="delete-btn">Delete</a></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6">No activity recorded for this goal yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <hr style="margin: 40px 0;">
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Subscription / Bill</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 500px; margin: 40px auto; padding: 0 20px; color: #333; }
+        form { background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        input, select, button { width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #059669; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #047857; }
+        .cancel-btn { display: block; text-align: center; margin-top: 15px; color: #64748b; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Edit Upcoming Bill / Subscription</h2>
+
+    <form action="/edit_sub/{{ sub.id }}" method="POST">
+        <div class="form-group">
+            <label>Service / Bill Name</label>
+            <input type="text" name="name" value="{{ sub.name }}" required>
+        </div>
+        <div class="form-group">
+            <label>Amount ($)</label>
+            <input type="number" step="0.01" name="amount" value="{{ sub.amount }}" required>
+        </div>
+        <div class="form-group">
+            <label>Next Due Date</label>
+            <input type="date" name="due_date" value="{{ sub.due_date }}" required>
+        </div>
+        <div class="form-group">
+            <label>Frequency</label>
+            <select name="frequency">
+                <option value="Monthly" {% if sub.frequency == 'Monthly' %}selected{% endif %}>Monthly</option>
+                <option value="Yearly" {% if sub.frequency == 'Yearly' %}selected{% endif %}>Yearly</option>
+                <option value="Weekly" {% if sub.frequency == 'Weekly' %}selected{% endif %}>Weekly</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select name="category">
+                <option value="Subscriptions" {% if sub.category == 'Subscriptions' %}selected{% endif %}>Subscriptions</option>
+                <option value="Bills & Housing" {% if sub.category == 'Bills & Housing' %}selected{% endif %}>Bills & Housing</option>
+                <option value="Insurance" {% if sub.category == 'Insurance' %}selected{% endif %}>Insurance</option>
+                <option value="Other" {% if sub.category == 'Other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+        <button type="submit">Update Subscription</button>
+        <a href="/" class="cancel-btn">Cancel</a>
+    </form>
+
+</body>
+</html>

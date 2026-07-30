@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Enter Expenses{% endblock %}
+{% block content %}
+    <h2>Enter Expenses & Subscriptions</h2>
+    <div class="grid">
+        <form action="/add_transaction" method="POST">
+            <h3>Log Expense</h3>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category" required>
+                    <option value="Food & Dining">Food & Dining</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" step="0.01" name="amount" placeholder="45.50" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="description" placeholder="Groceries" required>
+            </div>
+            <button type="submit">Add Expense</button>
+        </form>
+
+        <form action="/add_subscription" method="POST">
+            <h3>Add Subscription / Bill</h3>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" placeholder="Netflix, Rent" required>
+            </div>
+            <div class="form-group">
+                <label>Amount ($)</label>
+                <input type="number" step="0.01" name="amount" placeholder="15.99" required>
+            </div>
+            <div class="form-group">
+                <label>Next Due Date</label>
+                <input type="date" name="due_date" required>
+            </div>
+            <div class="form-group">
+                <label>Frequency</label>
+                <select name="frequency">
+                    <option value="Monthly">Monthly</option>
+                    <option value="Yearly">Yearly</option>
+                    <option value="Weekly">Weekly</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category">
+                    <option value="Subscriptions">Subscriptions</option>
+                    <option value="Bills & Housing">Bills & Housing</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <button type="submit" style="background-color: #059669;">Add Upcoming Bill</button>
+        </form>
+    </div>
+{% endblock %}

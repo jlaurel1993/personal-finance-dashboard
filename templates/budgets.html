@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Monthly Budgets{% endblock %}
+{% block content %}
+    <h2>Category Monthly Budgets vs Actual Spending</h2>
+
+    <!-- Set Budget Form -->
+    <form action="/set_budget" method="POST">
+        <h3>Set or Update Category Monthly Budget</h3>
+        <div class="grid">
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category" required>
+                    <option value="Food & Dining">Food & Dining</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Monthly Spending Cap ($)</label>
+                <input type="number" step="0.01" name="limit" placeholder="300.00" required>
+            </div>
+        </div>
+        <button type="submit">Set Budget Cap</button>
+    </form>
+
+    <!-- Budget Performance Cards -->
+    <h3>Current Month Progress</h3>
+    {% for b in budget_data %}
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: #1e3a8a;">{{ b.category }}</h3>
+            {% if b.is_over %}
+                <span class="alert-badge alert-danger">⚠️ Over Budget!</span>
+            {% elif b.limit > 0 %}
+                <span class="alert-badge alert-info">On Track</span>
+            {% else %}
+                <span class="alert-badge alert-warning">No Limit Set</span>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 10px; font-size: 0.95rem;">
+            Spent this month: <strong>${{ "%.2f"|format(b.spent) }}</strong> 
+            {% if b.limit > 0 %}
+                of <strong>${{ "%.2f"|format(b.limit) }}</strong> budget cap
+            {% endif %}
+        </div>
+
+        {% if b.limit > 0 %}
+        <div class="progress-bg">
+            <div class="progress-fill" style="width: {{ b.percent }}%; background-color: {% if b.is_over %}#dc2626{% else %}#2563eb{% endif %};"></div>
+        </div>
+        <div style="font-size: 0.85rem; color: #64748b; margin-top: 4px; text-align: right;">
+            {% if b.remaining >= 0 %}
+                ${{ "%.2f"|format(b.remaining) }} remaining
+            {% else %}
+                ${{ "%.2f"|format(-b.remaining) }} over limit
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% endblock %}

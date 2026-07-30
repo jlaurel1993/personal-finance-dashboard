@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Home - Dashboard{% endblock %}
+{% block content %}
+    <h2>Welcome to Your Dashboard</h2>
+    
+    <div class="grid">
+        <div class="card" style="text-align: center; border-left: 5px solid #2563eb;">
+            <h3 style="margin: 0; color: #64748b;">Total Expenses Logged</h3>
+            <h1 style="color: #2563eb; margin: 10px 0 0 0;">${{ "%.2f"|format(total_spent) }}</h1>
+        </div>
+        <div class="card" style="text-align: center; border-left: 5px solid #059669;">
+            <h3 style="margin: 0; color: #64748b;">Upcoming Recurring Total</h3>
+            <h1 style="color: #059669; margin: 10px 0 0 0;">${{ "%.2f"|format(total_recurring) }}</h1>
+        </div>
+    </div>
+
+    <h3>Upcoming Bills Preview</h3>
+    <table>
+        <thead>
+            <tr><th>Due Date</th><th>Alert Status</th><th>Service</th><th>Amount</th></tr>
+        </thead>
+        <tbody>
+            {% for item in recent_subs %}
+            <tr>
+                <td><strong>{{ item.data.due_date }}</strong></td>
+                <td><span class="alert-badge alert-{{ item.status.class }}">{{ item.status.label }}</span></td>
+                <td>{{ item.data.name }}</td>
+                <td>${{ "%.2f"|format(item.data.amount) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">No upcoming bills.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
