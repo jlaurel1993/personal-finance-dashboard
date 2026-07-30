@@ -1,7 +1,7 @@
 import csv
-import os
 from datetime import datetime
 import io
+import os
 from flask import (
     Flask,
     Response,
@@ -27,7 +27,15 @@ app = Flask(__name__)
 
 # Secret key required for session management and user login
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///finance.db'
+
+# Use PostgreSQL on Render, or fallback to local SQLite
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///finance.db')
+
+# Fix Render's postgres:// prefix compatibility for SQLAlchemy
+if database_url.startswith('postgres://'):
+  database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
