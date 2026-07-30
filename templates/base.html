@@ -23,7 +23,6 @@
             color: var(--text-color);
             margin: 0;
             padding: 0;
-            top: 0 !important; /* Prevents Google Translate top bar shift */
         }
 
         nav {
@@ -41,19 +40,21 @@
             gap: 15px;
         }
 
-        /* Styling Google Translate widget to look sleek */
-        #google_translate_element select {
+        .lang-btn {
             background-color: #334155;
             color: #f8fafc;
             border: 1px solid var(--accent-color);
             padding: 6px 12px;
             border-radius: 6px;
-            font-weight: 600;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
         }
 
-        .goog-te-banner-frame {
-            display: none !important;
+        .lang-btn:hover {
+            background-color: var(--accent-color);
+            color: #0f172a;
         }
 
         .nav-links {
@@ -102,27 +103,26 @@
 
     <nav>
         <div class="nav-left">
-            <!-- Automated Google Translator at top left -->
-            <div id="google_translate_element"></div>
+            <button id="lang-toggle" class="lang-btn" onclick="toggleLanguage()">🇲🇽 Español</button>
             <a href="/" style="text-decoration: none; color: white; font-weight: bold; font-size: 1.2rem;">📊 FinanceApp</a>
         </div>
         
         {% if current_user.is_authenticated %}
         <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/enter_expenses">Enter Expenses</a></li>
-            <li><a href="/upcoming_bills">Upcoming Bills</a></li>
-            <li><a href="/past_expenses">Past Expenses</a></li>
-            <li><a href="/budgets">Budgets</a></li>
-            <li><a href="/goals">Goals</a></li>
-            <li><a href="/monthly_totals">Monthly Totals</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/logout" style="color: var(--danger);">Logout</a></li>
+            <li><a href="/" data-en="Home" data-es="Inicio">Home</a></li>
+            <li><a href="/enter_expenses" data-en="Enter Expenses" data-es="Ingresar Gastos">Enter Expenses</a></li>
+            <li><a href="/upcoming_bills" data-en="Upcoming Bills" data-es="Facturas Pendientes">Upcoming Bills</a></li>
+            <li><a href="/past_expenses" data-en="Past Expenses" data-es="Gastos Pasados">Past Expenses</a></li>
+            <li><a href="/budgets" data-en="Budgets" data-es="Presupuestos">Budgets</a></li>
+            <li><a href="/goals" data-en="Goals" data-es="Metas">Goals</a></li>
+            <li><a href="/monthly_totals" data-en="Monthly Totals" data-es="Totales Mensuales">Monthly Totals</a></li>
+            <li><a href="/about" data-en="About" data-es="Acerca de">About</a></li>
+            <li><a href="/logout" style="color: var(--danger);" data-en="Logout" data-es="Cerrar Sesión">Logout</a></li>
         </ul>
         {% else %}
         <ul class="nav-links">
-            <li><a href="/login">Login</a></li>
-            <li><a href="/signup">Sign Up</a></li>
+            <li><a href="/login" data-en="Login" data-es="Iniciar Sesión">Login</a></li>
+            <li><a href="/signup" data-en="Sign Up" data-es="Registrarse">Sign Up</a></li>
         </ul>
         {% endif %}
     </nav>
@@ -141,17 +141,37 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Google Translate Script -->
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                includedLanguages: 'en,es',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-            }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        function setLanguage(lang) {
+            const btn = document.getElementById('lang-toggle');
+            
+            document.querySelectorAll('[data-en]').forEach(el => {
+                if (lang === 'es') {
+                    el.innerText = el.getAttribute('data-es');
+                } else {
+                    el.innerText = el.getAttribute('data-en');
+                }
+            });
 
+            if (lang === 'es') {
+                btn.innerText = "🇺🇸 English";
+                localStorage.setItem('preferred_language', 'es');
+            } else {
+                btn.innerText = "🇲🇽 Español";
+                localStorage.setItem('preferred_language', 'en');
+            }
+        }
+
+        function toggleLanguage() {
+            const currentLang = localStorage.getItem('preferred_language') || 'en';
+            const newLang = currentLang === 'en' ? 'es' : 'en';
+            setLanguage(newLang);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferred_language') || 'en';
+            setLanguage(savedLang);
+        });
+    </script>
 </body>
 </html>
