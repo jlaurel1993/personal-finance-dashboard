@@ -39,7 +39,7 @@
     {% set g = item.goal %}
     <div style="background: white; border-radius: 12px; border: 1px solid #bfdbfe; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);">
         
-        <!-- Main Colored Goal Banner -->
+        <!-- 1. ALWAYS VISIBLE: Main Colored Banner -->
         <div style="background: {% if loop.index % 2 == 0 %}#059669{% else %}#1d4ed8{% endif %}; color: white; padding: 20px 25px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <h3 style="margin: 0; font-size: 1.4rem; color: white;">🎯 {{ g.title }}</h3>
@@ -55,7 +55,6 @@
                 </div>
             </div>
 
-            <!-- Progress Bar -->
             <div style="font-size: 1rem; margin-bottom: 10px;">
                 <strong>${{ "%.2f"|format(item.total_saved) }}</strong> <span data-en="saved of" data-es="ahorrados de">saved of</span> <strong>${{ "%.2f"|format(g.target_amount) }}</strong> <span data-en="goal" data-es="meta">goal</span>
             </div>
@@ -64,40 +63,42 @@
                 <div class="progress-fill" style="width: {{ item.percent_complete }}%; background: #38bdf8;"></div>
             </div>
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-                <span style="font-size: 0.85rem; opacity: 0.9;">{{ item.percent_complete }}% <span data-en="Complete" data-es="Completado">Complete</span></span>
-                
-                <!-- Dropdown Button -->
-                <button type="button" onclick="toggleGoalDetails({{ g.id }})" style="background: #ffffff; color: #1e3a8a; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
-                    <span id="label-goal-{{ g.id }}" data-en="Show Details 👇" data-es="Mostrar Detalles 👇">Show Details 👇</span>
-                </button>
+            <div style="margin-top: 8px; font-size: 0.85rem; opacity: 0.9;">
+                {{ item.percent_complete }}% <span data-en="Complete" data-es="Completado">Complete</span>
             </div>
         </div>
 
-        <!-- COLLAPSIBLE DROPDOWN BLOCK (Hidden by default) -->
-        <div id="details-goal-{{ g.id }}" style="display: none; padding: 25px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
-            
-            <!-- 4 Stat Boxes -->
-            <div class="grid" style="grid-template-columns: repeat(4, 1fr); text-align: center; margin-bottom: 25px;">
-                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <!-- 2. ALWAYS VISIBLE: The 4 Summary Stat Boxes + Dropdown Button -->
+        <div style="padding: 20px 25px; background: #ffffff; border-bottom: 1px solid #e2e8f0;">
+            <div class="grid" style="grid-template-columns: repeat(4, 1fr); text-align: center;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                     <div style="font-size: 0.8rem; color: #64748b;" data-en="+ Total Saved" data-es="+ Total Ahorrado">+ Total Saved</div>
                     <div style="font-size: 1.1rem; font-weight: bold; color: #16a34a;">${{ "%.2f"|format(item.total_saved) }}</div>
                 </div>
-                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                     <div style="font-size: 0.8rem; color: #64748b;" data-en="Left to Save" data-es="Falta por Ahorrar">Left to Save</div>
                     <div style="font-size: 1.1rem; font-weight: bold; color: #1e3a8a;">${{ "%.2f"|format(item.left_to_save) }}</div>
                 </div>
-                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                     <div style="font-size: 0.8rem; color: #64748b;" data-en="Total Spent" data-es="Total Gastado">Total Spent</div>
                     <div style="font-size: 1.1rem; font-weight: bold; color: #dc2626;">${{ "%.2f"|format(item.total_spent) }}</div>
                 </div>
-                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                     <div style="font-size: 0.8rem; color: #64748b;" data-en="Available to Spend" data-es="Disponible para Gastar">Available to Spend</div>
                     <div style="font-size: 1.1rem; font-weight: bold; color: #2563eb;">${{ "%.2f"|format(item.available_to_spend) }}</div>
                 </div>
             </div>
 
-            <!-- Forms Side by Side -->
+            <div style="text-align: center; margin-top: 15px;">
+                <button type="button" onclick="toggleGoalDetails({{ g.id }})" style="background: #2563eb; color: #ffffff; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">
+                    <span id="label-goal-{{ g.id }}" data-en="Show Details 👇" data-es="Mostrar Detalles 👇">Show Details 👇</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. COLLAPSIBLE DROPDOWN: Log Activity, Update Settings, and History Table -->
+        <div id="details-goal-{{ g.id }}" style="display: none; padding: 25px; background: #f8fafc;">
+            
             <div class="grid" style="margin-bottom: 25px;">
                 
                 <!-- Log Activity Form -->
