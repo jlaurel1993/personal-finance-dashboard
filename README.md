@@ -1,5 +1,21 @@
 # 📊 Personal Finance & Savings Goal Dashboard
 
+## 🚀 Live Demo & Portfolio Access
+
+The application is deployed and live on Render:
+🔗 **Live Application:** [https://personal-finance-dashboard-tkfk.onrender.com/](https://personal-finance-dashboard-tkfk.onrender.com/)
+
+---
+
+### 🔑 Demo Account for Reviewers
+
+Recruiters and hiring managers are welcome to test the application using the pre-configured demo account below, or feel free to register a new account to test isolated user data persistence:
+
+* **Username:** `testing123`
+* **Password:** `123456`
+
+> **Note:** *The demo account includes pre-populated expenses, subscriptions, budgets, and savings goals to showcase full dashboard functionality and PostgreSQL persistence.*
+
 A full-stack, multi-user web application built with **Flask**, **SQLAlchemy**, and **Chart.js** designed to track personal expenses, manage upcoming recurring bills, monitor category budgets, and save for major goals (like vacations) in an isolated environment per user account.
 
 ---
