@@ -1,162 +1,229 @@
-{% extends 'base.html' %}
-{% block title %}Savings Goals{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}Goals - Personal Finance Dashboard{% endblock %}
+
 {% block content %}
+<h2 style="margin-top: 0;" data-en="Track Progress on Your Biggest Goals" data-es="Sigue el Progreso de tus Mayores Metas">Track Progress on Your Biggest Goals</h2>
 
-    <h2>Track Progress on Your Biggest Goals</h2>
-
-    <!-- Prompt to Create a New Regular Goal -->
-    <form action="/add_goal" method="POST" style="margin-bottom: 35px; border-left: 5px solid #2563eb;">
-        <h3>🎯 Create a New Savings Goal</h3>
+<!-- Create Goal Form Card -->
+<div class="card">
+    <h3 data-en="🎯 Create a New Savings Goal" data-es="🎯 Crear una Nueva Meta de Ahorro">🎯 Create a New Savings Goal</h3>
+    <form action="/goals" method="POST">
+        <input type="hidden" name="action" value="create_goal">
+        
         <div class="grid">
             <div class="form-group">
-                <label>Goal Name</label>
+                <label data-en="Goal Name" data-es="Nombre de la Meta">Goal Name</label>
                 <input type="text" name="title" placeholder="e.g. Emergency Fund, New Car, Laptop" required>
             </div>
             <div class="form-group">
-                <label>Target Amount ($)</label>
+                <label data-en="Target Amount ($)" data-es="Monto Objetivo ($)">Target Amount ($)</label>
                 <input type="number" step="0.01" name="target_amount" placeholder="5000.00" required>
             </div>
         </div>
+
         <div class="form-group">
-            <label>Target Completion Date</label>
+            <label data-en="Target Completion Date" data-es="Fecha Límite Objetivo">Target Completion Date</label>
             <input type="date" name="target_date" required>
         </div>
-        <button type="submit" style="background-color: #2563eb;">Create Goal</button>
+
+        <button type="submit" class="btn" data-en="Create Goal" data-es="Crear Meta">Create Goal</button>
     </form>
+</div>
 
-    <hr style="margin: 40px 0; border: none; border-top: 2px dashed #bfdbfe;">
+<hr style="border: 0; border-top: 1px solid #bfdbfe; margin: 30px 0;">
 
-    <!-- Render All Active Goal Cards (Vacation Goal remains first) -->
-    {% for c in goal_cards %}
-    <div style="margin-bottom: 50px;">
-        <!-- Goal Progress Banner Header -->
-        <div class="card" style="background: {% if c.goal.is_vacation %}linear-gradient(135deg, #1e3a8a, #2563eb){% else %}linear-gradient(135deg, #0f766e, #059669){% endif %}; color: white; border: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin: 0; color: #ffffff;">{% if c.goal.is_vacation %}🏖️{% else %}🎯{% endif %} {{ c.goal.title }}</h2>
-                <div>
-                    <span style="background: rgba(255, 255, 255, 0.2); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
-                        Target: {{ c.goal.target_date }}
+<!-- List of Goals with Collapsible Details -->
+{% if goals %}
+    {% for item in goals %}
+    {% set g = item.goal %}
+    <div style="background: white; border-radius: 12px; border: 1px solid #bfdbfe; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);">
+        
+        <!-- Main Collapsible Header Banner -->
+        <div style="background: {% if loop.index % 2 == 0 %}#059669{% else %}#1d4ed8{% endif %}; color: white; padding: 20px 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="margin: 0; font-size: 1.4rem; color: white;">🎯 {{ g.title }}</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold;">
+                        <span data-en="Target:" data-es="Objetivo:">Target:</span> {{ g.target_date }}
                     </span>
-                    {% if not c.goal.is_vacation %}
-                        <a href="/delete_goal/{{ c.goal.id }}" style="color: #fca5a5; margin-left: 10px; font-weight: bold; text-decoration: none;">Delete Goal</a>
-                    {% endif %}
+                    <form action="/goals" method="POST" style="display: inline; margin: 0;" onsubmit="return confirm('Are you sure you want to delete this goal?');">
+                        <input type="hidden" name="action" value="delete_goal">
+                        <input type="hidden" name="goal_id" value="{{ g.id }}">
+                        <button type="submit" style="background: none; border: none; color: #fca5a5; font-size: 0.85rem; font-weight: bold; cursor: pointer; padding: 0;" data-en="Delete Goal" data-es="Eliminar Meta">Delete Goal</button>
+                    </form>
                 </div>
             </div>
 
-            <div style="margin-top: 15px; font-size: 1.1rem;">
-                <strong>${{ "%.2f"|format(c.total_saved) }}</strong> saved of <strong>${{ "%.2f"|format(c.goal.target_amount) }}</strong> goal
+            <!-- Progress Info -->
+            <div style="font-size: 1rem; margin-bottom: 10px;">
+                <strong>${{ "%.2f"|format(item.total_saved) }}</strong> <span data-en="saved of" data-es="ahorrados de">saved of</span> <strong>${{ "%.2f"|format(g.target_amount) }}</strong> <span data-en="goal" data-es="meta">goal</span>
             </div>
 
-            <div class="progress-bg" style="background: rgba(255,255,255,0.3); height: 18px;">
-                <div class="progress-fill" style="width: {{ c.progress_percent }}%; background-color: #10b981;"></div>
+            <div class="progress-bg" style="background: rgba(255,255,255,0.3); height: 12px;">
+                <div class="progress-fill" style="width: {{ item.percent_complete }}%; background: #38bdf8;"></div>
             </div>
-            <div style="text-align: right; font-size: 0.85rem; margin-top: 5px; color: #bfdbfe;">
-                {{ "%.1f"|format(c.progress_percent) }}% Complete
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                <span style="font-size: 0.85rem; opacity: 0.9;">{{ item.percent_complete }}% <span data-en="Complete" data-es="Completado">Complete</span></span>
+                
+                <!-- Toggle Dropdown Button -->
+                <button type="button" onclick="toggleGoalDetails({{ g.id }})" id="btn-goal-{{ g.id }}" style="background: #ffffff; color: #1e3a8a; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; width: auto; margin-top: 0;">
+                    <span id="label-goal-{{ g.id }}" data-en="Show Details 👇" data-es="Mostrar Detalles 👇">Show Details 👇</span>
+                </button>
             </div>
         </div>
 
-        <!-- 4 Stat Cards for this specific goal -->
-        <div class="grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px;">
-            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
-                <div style="font-size: 0.8rem; color: #059669; font-weight: bold;">+ Total Saved</div>
-                <div style="font-size: 1.2rem; font-weight: bold; color: #059669; margin-top: 5px;">${{ "%.2f"|format(c.total_saved) }}</div>
+        <!-- Hidden Details Content (Opens on click) -->
+        <div id="details-goal-{{ g.id }}" style="display: none; padding: 25px; background: #f8fafc;">
+            
+            <!-- Summary Stats -->
+            <div class="grid" style="grid-template-columns: repeat(4, 1fr); text-align: center; margin-bottom: 25px;">
+                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 0.8rem; color: #64748b;" data-en="+ Total Saved" data-es="+ Total Ahorrado">+ Total Saved</div>
+                    <div style="font-size: 1.1rem; font-weight: bold; color: #16a34a;">${{ "%.2f"|format(item.total_saved) }}</div>
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 0.8rem; color: #64748b;" data-en="Left to Save" data-es="Falta por Ahorrar">Left to Save</div>
+                    <div style="font-size: 1.1rem; font-weight: bold; color: #1e3a8a;">${{ "%.2f"|format(item.left_to_save) }}</div>
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 0.8rem; color: #64748b;" data-en="Total Spent" data-es="Total Gastado">Total Spent</div>
+                    <div style="font-size: 1.1rem; font-weight: bold; color: #dc2626;">${{ "%.2f"|format(item.total_spent) }}</div>
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 0.8rem; color: #64748b;" data-en="Available to Spend" data-es="Disponible para Gastar">Available to Spend</div>
+                    <div style="font-size: 1.1rem; font-weight: bold; color: #2563eb;">${{ "%.2f"|format(item.available_to_spend) }}</div>
+                </div>
             </div>
-            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
-                <div style="font-size: 0.8rem; color: #64748b; font-weight: bold;">Left to Save</div>
-                <div style="font-size: 1.2rem; font-weight: bold; color: #1e293b; margin-top: 5px;">${{ "%.2f"|format(c.left_to_save) }}</div>
+
+            <!-- Forms Side by Side -->
+            <div class="grid" style="margin-bottom: 25px;">
+                
+                <!-- Log Activity Form -->
+                <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; color: #1e3a8a;"><span data-en="Log Activity for" data-es="Registrar Actividad para">Log Activity for</span> {{ g.title }}</h4>
+                    <form action="/goals" method="POST">
+                        <input type="hidden" name="action" value="add_transaction">
+                        <input type="hidden" name="goal_id" value="{{ g.id }}">
+
+                        <div class="form-group">
+                            <label data-en="Type" data-es="Tipo">Type</label>
+                            <select name="type">
+                                <option value="savings" data-en="💵 Add Savings Contribution" data-es="💵 Agregar Contribución de Ahorro">💵 Add Savings Contribution</option>
+                                <option value="expense" data-en="💸 Log Goal Expense" data-es="💸 Registrar Gasto de Meta">💸 Log Goal Expense</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Category" data-es="Categoría">Category</label>
+                            <input type="text" name="category" placeholder="e.g. Deposit, Purchase, Transfer" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Amount ($)" data-es="Monto ($)">Amount ($)</label>
+                            <input type="number" step="0.01" name="amount" placeholder="100.00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Description" data-es="Descripción">Description</label>
+                            <input type="text" name="description" placeholder="Monthly contribution">
+                        </div>
+
+                        <button type="submit" style="background: #059669;" data-en="Save Activity" data-es="Guardar Actividad">Save Activity</button>
+                    </form>
+                </div>
+
+                <!-- Update Settings Form -->
+                <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; color: #1e3a8a;" data-en="Update Settings" data-es="Actualizar Configuración">Update Settings</h4>
+                    <form action="/goals" method="POST">
+                        <input type="hidden" name="action" value="update_goal">
+                        <input type="hidden" name="goal_id" value="{{ g.id }}">
+
+                        <div class="form-group">
+                            <label data-en="Title" data-es="Título">Title</label>
+                            <input type="text" name="title" value="{{ g.title }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Target Goal ($)" data-es="Meta Objetivo ($)">Target Goal ($)</label>
+                            <input type="number" step="0.01" name="target_amount" value="{{ g.target_amount }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label data-en="Target Date" data-es="Fecha Límite">Target Date</label>
+                            <input type="date" name="target_date" value="{{ g.target_date }}" required>
+                        </div>
+
+                        <button type="submit" data-en="Update Goal Settings" data-es="Actualizar Configuración">Update Goal Settings</button>
+                    </form>
+                </div>
+
             </div>
-            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
-                <div style="font-size: 0.8rem; color: #dc2626; font-weight: bold;">Total Spent</div>
-                <div style="font-size: 1.2rem; font-weight: bold; color: #dc2626; margin-top: 5px;">${{ "%.2f"|format(c.total_spent) }}</div>
-            </div>
-            <div class="card" style="margin: 0; padding: 15px; text-align: center;">
-                <div style="font-size: 0.8rem; color: #2563eb; font-weight: bold;">Available to Spend</div>
-                <div style="font-size: 1.2rem; font-weight: bold; color: #2563eb; margin-top: 5px;">${{ "%.2f"|format(c.available_to_spend) }}</div>
-            </div>
+
+            <!-- History Table -->
+            <h4 style="margin-bottom: 10px; color: #1e3a8a;"><span data-en="History for" data-es="Historial de">History for</span> {{ g.title }}</h4>
+            {% if item.transactions %}
+            <table>
+                <thead>
+                    <tr>
+                        <th data-en="Date" data-es="Fecha">Date</th>
+                        <th data-en="Type" data-es="Tipo">Type</th>
+                        <th data-en="Category" data-es="Categoría">Category</th>
+                        <th data-en="Description" data-es="Descripción">Description</th>
+                        <th data-en="Amount" data-es="Monto">Amount</th>
+                        <th data-en="Action" data-es="Acción">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in item.transactions %}
+                    <tr>
+                        <td>{{ t.date }}</td>
+                        <td>
+                            {% if t.type == 'savings' %}
+                                <span class="badge" style="background: #dcfce7; color: #166534;">+ Savings</span>
+                            {% else %}
+                                <span class="badge" style="background: #fee2e2; color: #991b1b;">- Expense</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.description }}</td>
+                        <td><strong>${{ "%.2f"|format(t.amount) }}</strong></td>
+                        <td>
+                            <form action="/goals" method="POST" style="display: inline; margin: 0;">
+                                <input type="hidden" name="action" value="delete_transaction">
+                                <input type="hidden" name="transaction_id" value="{{ t.id }}">
+                                <button type="submit" class="delete-btn" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="return confirm('Delete transaction?');" data-en="Delete" data-es="Eliminar">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #64748b; font-size: 0.9rem;" data-en="No transaction history logged for this goal yet." data-es="Aún no hay historial de transacciones para esta meta.">No transaction history logged for this goal yet.</p>
+            {% endif %}
+
         </div>
-
-        <!-- Forms for this Goal -->
-        <div class="grid">
-            <!-- Log Activity for this specific Goal -->
-            <form action="/add_goal_log/{{ c.goal.id }}" method="POST">
-                <h3>Log Activity for {{ c.goal.title }}</h3>
-                <div class="form-group">
-                    <label>Type</label>
-                    <select name="log_type" required>
-                        <option value="contribution">💵 Add Savings Contribution</option>
-                        <option value="expense">💳 Goal Expense</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Category</label>
-                    <input type="text" name="category" placeholder="e.g. Deposit, Purchase, Transfer" required>
-                </div>
-                <div class="form-group">
-                    <label>Amount ($)</label>
-                    <input type="number" step="0.01" name="amount" placeholder="100.00" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <input type="text" name="description" placeholder="Monthly contribution" required>
-                </div>
-                <button type="submit" style="background-color: #059669;">Save Activity</button>
-            </form>
-
-            <!-- Update Goal Details -->
-            <form action="/update_goal/{{ c.goal.id }}" method="POST">
-                <h3>Update Settings</h3>
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" name="title" value="{{ c.goal.title }}" required>
-                </div>
-                <div class="form-group">
-                    <label>Target Goal ($)</label>
-                    <input type="number" step="0.01" name="target_amount" value="{{ c.goal.target_amount }}" required>
-                </div>
-                <div class="form-group">
-                    <label>Target Date</label>
-                    <input type="date" name="target_date" value="{{ c.goal.target_date }}" required>
-                </div>
-                <button type="submit">Update Goal Settings</button>
-            </form>
-        </div>
-
-        <!-- History Table for this specific Goal -->
-        <h3>History for {{ c.goal.title }}</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in c.logs %}
-                <tr>
-                    <td>{{ item.date.strftime('%Y-%m-%d') }}</td>
-                    <td>
-                        {% if item.log_type == 'contribution' %}
-                            <span class="alert-badge alert-info">+ Savings</span>
-                        {% else %}
-                            <span class="alert-badge alert-danger">- Expense</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ item.category }}</td>
-                    <td>{{ item.description }}</td>
-                    <td><strong>${{ "%.2f"|format(item.amount) }}</strong></td>
-                    <td><a href="/delete_goal_log/{{ item.id }}" class="delete-btn">Delete</a></td>
-                </tr>
-                {% else %}
-                <tr><td colspan="6">No activity recorded for this goal yet.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
-    <hr style="margin: 40px 0;">
     {% endfor %}
+{% endif %}
+
+<script>
+    function toggleGoalDetails(goalId) {
+        const details = document.getElementById('details-goal-' + goalId);
+        const label = document.getElementById('label-goal-' + goalId);
+        const isHidden = details.style.display === 'none';
+
+        if (isHidden) {
+            details.style.display = 'block';
+            label.innerText = 'Hide Details ☝️';
+        } else {
+            details.style.display = 'none';
+            label.innerText = 'Show Details 👇';
+        }
+    }
+</script>
 
 {% endblock %}
