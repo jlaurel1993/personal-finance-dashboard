@@ -31,8 +31,9 @@
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
         }
 
-        /* Dynamic Color Themes */
+        /* Dynamic Color Themes (Updating Body Backgrounds) */
         body[data-theme="blue"] {
+            --bg-main: #f8fafc;
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
             --primary-light: #eff6ff;
@@ -40,6 +41,7 @@
         }
 
         body[data-theme="green"] {
+            --bg-main: #f0fdf4; /* Tinted light green background */
             --primary: #059669;
             --primary-dark: #047857;
             --primary-light: #ecfdf5;
@@ -47,6 +49,7 @@
         }
 
         body[data-theme="purple"] {
+            --bg-main: #faf5ff; /* Tinted light purple background */
             --primary: #7c3aed;
             --primary-dark: #6d28d9;
             --primary-light: #f5f3ff;
@@ -54,21 +57,23 @@
         }
 
         body[data-theme="red"] {
+            --bg-main: #fef2f2; /* Tinted light red background */
             --primary: #dc2626;
             --primary-dark: #b91c1c;
-            --primary-light: #fef2f2;
+            --primary-light: #fee2e2;
             --header-bg: #991b1b;
         }
 
         body[data-theme="pink"] {
+            --bg-main: #fdf2f8; /* Tinted light pink background */
             --primary: #db2777;
             --primary-dark: #be185d;
-            --primary-light: #fdf2f8;
+            --primary-light: #fce7f3;
             --header-bg: #831843;
         }
 
         body[data-theme="dark"] {
-            --bg-main: #0f172a;
+            --bg-main: #0f172a; /* Dark slate background */
             --card-bg: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -88,9 +93,10 @@
         body { 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
             color: var(--text-main); 
-            background-color: var(--bg-main); 
+            background-color: var(--bg-main) !important; 
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease;
         }
         
         /* Modern Header Banner */
@@ -143,7 +149,7 @@
             background-color: rgba(255, 255, 255, 0.12);
             color: #ffffff;
             border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
@@ -152,6 +158,9 @@
             backdrop-filter: blur(4px);
             width: auto;
             margin: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .lang-btn:hover { 
             background-color: rgba(255, 255, 255, 0.25); 
@@ -159,7 +168,7 @@
 
         /* Modern Navigation Tabs */
         nav { 
-            background-color: #ffffff; 
+            background-color: var(--card-bg); 
             display: flex; 
             justify-content: center; 
             flex-wrap: wrap; 
@@ -293,7 +302,7 @@
         .progress-bg { background: var(--border-color); border-radius: 20px; height: 16px; width: 100%; overflow: hidden; margin-top: 8px; }
         .progress-fill { height: 100%; border-radius: 20px; transition: width 0.3s ease; }
 
-        /* Specific Component Tweaks for Dark Mode */
+        /* Component Overrides for Dark Theme */
         body[data-theme="dark"] nav,
         body[data-theme="dark"] table,
         body[data-theme="dark"] form,
@@ -324,9 +333,13 @@
 
     <div class="header-banner">
         <div class="lang-bar" style="display: flex; gap: 8px; align-items: center;">
-            <button id="lang-toggle" class="lang-btn" onclick="toggleLanguage()">🇲🇽 Español</button>
+            <!-- Icon-Only Globe Language Toggle -->
+            <button id="lang-toggle" class="lang-btn" onclick="toggleLanguage()" title="Switch Language">
+                <i class="fa-solid fa-globe"></i> <span id="lang-indicator">ES</span>
+            </button>
+            
             <!-- Palette Theme Toggle Button -->
-            <button class="lang-btn" onclick="cycleTheme()" title="Change Color Theme" style="padding: 6px 12px; cursor: pointer;">
+            <button class="lang-btn" onclick="cycleTheme()" title="Change Color Theme">
                 <i class="fa-solid fa-palette"></i>
             </button>
         </div>
@@ -395,9 +408,8 @@
             applyTheme(themes[nextIndex]);
         }
 
-        // Full Page Dictionary Mapping for Translation
+        // Translation Dictionary Mapping
         const pageTranslations = {
-            // Goals Tab
             "Track Progress on Your Biggest Goals": "Sigue el Progreso de tus Mayores Metas",
             "🎯 Create a New Savings Goal": "🎯 Crear una Nueva Meta de Ahorro",
             "Goal Name": "Nombre de la Meta",
@@ -411,8 +423,6 @@
             "Add Funds / Log Expense": "Agregar Fondos / Registrar Gasto",
             "Log Contribution": "Registrar Contribución",
             "Log Expense": "Registrar Gasto",
-            
-            // Enter Expenses & Forms
             "Enter New Expense": "Ingresar Nuevo Gasto",
             "Category": "Categoría",
             "Amount": "Monto",
@@ -422,8 +432,6 @@
             "Bill/Service Name": "Nombre de Factura/Servicio",
             "Due Date": "Fecha de Vencimiento",
             "Frequency": "Frecuencia",
-            
-            // General Actions & Headings
             "Welcome to Your Dashboard": "Bienvenido a tu Panel",
             "Total Expenses Logged": "Gastos Totales Registrados",
             "Upcoming Recurring Total": "Total Recurrente Próximo",
@@ -444,7 +452,6 @@
                 
                 if (lang === 'es') {
                     if (!el.dataset.origText) el.dataset.origText = text;
-                    
                     if (pageTranslations[text]) {
                         el.innerText = pageTranslations[text];
                     }
@@ -455,7 +462,7 @@
         }
 
         function setLanguage(lang) {
-            const btn = document.getElementById('lang-toggle');
+            const indicator = document.getElementById('lang-indicator');
             
             // 1. Translate nav & header elements
             document.querySelectorAll('[data-en]').forEach(el => {
@@ -469,12 +476,12 @@
             // 2. Translate body content elements
             translateBody(lang);
 
-            // 3. Update Button Label
+            // 3. Update Icon Label Indicator
             if (lang === 'es') {
-                btn.innerText = "🇺🇸 English";
+                if (indicator) indicator.innerText = "EN";
                 localStorage.setItem('preferred_language', 'es');
             } else {
-                btn.innerText = "🇲🇽 Español";
+                if (indicator) indicator.innerText = "ES";
                 localStorage.setItem('preferred_language', 'en');
             }
         }
