@@ -14,6 +14,14 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- INSTANT THEME EXECUTION (PREVENTS COLOR FLASHING BETWEEN TABS) -->
+    <script>
+        (function() {
+            var savedColorTheme = localStorage.getItem('preferred_color_theme') || 'blue';
+            document.documentElement.setAttribute('data-theme', savedColorTheme);
+        })();
+    </script>
+
     <style>
         :root {
             --bg-main: #f8fafc;
@@ -31,8 +39,8 @@
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
         }
 
-        /* Dynamic Color Themes (Updating Body Backgrounds) */
-        body[data-theme="blue"] {
+        /* Dynamic Color Themes */
+        html[data-theme="blue"], body[data-theme="blue"] {
             --bg-main: #f8fafc;
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
@@ -40,40 +48,40 @@
             --header-bg: #1e3a8a;
         }
 
-        body[data-theme="green"] {
-            --bg-main: #f0fdf4; /* Tinted light green background */
+        html[data-theme="green"], body[data-theme="green"] {
+            --bg-main: #f0fdf4;
             --primary: #059669;
             --primary-dark: #047857;
             --primary-light: #ecfdf5;
             --header-bg: #064e3b;
         }
 
-        body[data-theme="purple"] {
-            --bg-main: #faf5ff; /* Tinted light purple background */
+        html[data-theme="purple"], body[data-theme="purple"] {
+            --bg-main: #faf5ff;
             --primary: #7c3aed;
             --primary-dark: #6d28d9;
             --primary-light: #f5f3ff;
             --header-bg: #4c1d95;
         }
 
-        body[data-theme="red"] {
-            --bg-main: #fef2f2; /* Tinted light red background */
+        html[data-theme="red"], body[data-theme="red"] {
+            --bg-main: #fef2f2;
             --primary: #dc2626;
             --primary-dark: #b91c1c;
             --primary-light: #fee2e2;
             --header-bg: #991b1b;
         }
 
-        body[data-theme="pink"] {
-            --bg-main: #fdf2f8; /* Tinted light pink background */
+        html[data-theme="pink"], body[data-theme="pink"] {
+            --bg-main: #fdf2f8;
             --primary: #db2777;
             --primary-dark: #be185d;
             --primary-light: #fce7f3;
             --header-bg: #831843;
         }
 
-        body[data-theme="dark"] {
-            --bg-main: #0f172a; /* Dark slate background */
+        html[data-theme="dark"], body[data-theme="dark"] {
+            --bg-main: #0f172a;
             --card-bg: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -90,13 +98,12 @@
             padding: 0;
         }
 
-        body { 
+        html, body { 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
             color: var(--text-main); 
             background-color: var(--bg-main) !important; 
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
-            transition: background-color 0.3s ease;
         }
         
         /* Modern Header Banner */
@@ -107,7 +114,6 @@
             padding: 35px 20px 25px 20px; 
             position: relative; 
             box-shadow: var(--shadow-sm);
-            transition: background 0.3s ease;
         }
         .header-banner h1 { 
             margin: 0 0 6px 0; 
@@ -154,7 +160,6 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 0.85rem;
-            transition: all 0.2s ease;
             backdrop-filter: blur(4px);
             width: auto;
             margin: 0;
@@ -179,7 +184,6 @@
             top: 0;
             z-index: 100;
             box-shadow: var(--shadow-sm);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         nav a { 
             color: var(--text-muted); 
@@ -188,7 +192,6 @@
             font-weight: 500; 
             font-size: 0.9rem; 
             border-radius: var(--radius-md); 
-            transition: all 0.2s ease; 
         }
         nav a i {
             margin-right: 6px;
@@ -209,7 +212,6 @@
             border: 1px solid var(--border-color); 
             box-shadow: var(--shadow-sm); 
             margin-bottom: 25px; 
-            transition: box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
         }
         form:hover, .card:hover {
             box-shadow: var(--shadow-md);
@@ -233,7 +235,6 @@
             background-color: var(--card-bg);
             color: var(--text-main);
             font-family: inherit;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         input:focus, select:focus {
             outline: none;
@@ -252,7 +253,6 @@
             font-size: 0.925rem;
             cursor: pointer; 
             margin-top: 10px; 
-            transition: background 0.2s ease, transform 0.1s ease;
             font-family: inherit;
         }
         button:hover { background: var(--primary-dark); }
@@ -270,7 +270,6 @@
             overflow: hidden; 
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow-sm); 
-            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border-color); font-size: 0.925rem; }
         th { 
@@ -302,7 +301,11 @@
         .progress-bg { background: var(--border-color); border-radius: 20px; height: 16px; width: 100%; overflow: hidden; margin-top: 8px; }
         .progress-fill { height: 100%; border-radius: 20px; transition: width 0.3s ease; }
 
-        /* Component Overrides for Dark Theme */
+        /* Dark Theme Component Overrides */
+        html[data-theme="dark"] nav,
+        html[data-theme="dark"] table,
+        html[data-theme="dark"] form,
+        html[data-theme="dark"] .card,
         body[data-theme="dark"] nav,
         body[data-theme="dark"] table,
         body[data-theme="dark"] form,
@@ -311,6 +314,8 @@
             border-color: #334155;
         }
 
+        html[data-theme="dark"] input, 
+        html[data-theme="dark"] select,
         body[data-theme="dark"] input, 
         body[data-theme="dark"] select {
             background-color: #0f172a;
@@ -318,11 +323,13 @@
             border-color: #334155;
         }
 
+        html[data-theme="dark"] th,
         body[data-theme="dark"] th {
             background-color: #0f172a;
             color: #94a3b8;
         }
 
+        html[data-theme="dark"] td,
         body[data-theme="dark"] td {
             border-bottom-color: #334155;
             color: #f8fafc;
@@ -398,6 +405,7 @@
         const themes = ['blue', 'green', 'purple', 'red', 'pink', 'dark'];
 
         function applyTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
             document.body.setAttribute('data-theme', themeName);
             localStorage.setItem('preferred_color_theme', themeName);
         }
@@ -464,7 +472,6 @@
         function setLanguage(lang) {
             const indicator = document.getElementById('lang-indicator');
             
-            // 1. Translate nav & header elements
             document.querySelectorAll('[data-en]').forEach(el => {
                 if (lang === 'es') {
                     el.innerText = el.getAttribute('data-es');
@@ -473,10 +480,8 @@
                 }
             });
 
-            // 2. Translate body content elements
             translateBody(lang);
 
-            // 3. Update Icon Label Indicator
             if (lang === 'es') {
                 if (indicator) indicator.innerText = "EN";
                 localStorage.setItem('preferred_language', 'es');
@@ -493,13 +498,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Load saved language
             const savedLang = localStorage.getItem('preferred_language') || 'en';
             setLanguage(savedLang);
-
-            // Load saved color theme
-            const savedColorTheme = localStorage.getItem('preferred_color_theme') || 'blue';
-            applyTheme(savedColorTheme);
         });
     </script>
 
